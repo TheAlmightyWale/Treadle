@@ -1,6 +1,7 @@
 #include <functional>
 #include <stop_token>
 #include <iostream>
+#include <syncstream>
 
 export module Worker;
 
@@ -27,12 +28,15 @@ Worker::Worker(JobQueue& queue, uint32_t id)
 
 void Worker::Run(std::stop_token stopToken)
 {
-	std::cout << "Running worker: " << m_id << std::endl;
+	std::osyncstream{ std::cout } << "Running worker: " << m_id << std::endl;
 	while (!stopToken.stop_requested())
 	{
-		std::cout << "Worker " << m_id << " attempting to pop" << std::endl;
-		Job job = m_queue.Pop();
-		job.Execute();
+
+		if (std::optional<Job> job = m_queue.Pop())
+		{
+			std::osyncstream{ std::cout } << "Worker " << m_id << " Executing job" << std::endl;
+			(*job).Execute();
+		}
 	}
 }
 

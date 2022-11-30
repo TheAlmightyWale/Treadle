@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <iostream>
+#include <syncstream>
 
 export module PrimeNumbers;
 
@@ -38,6 +40,8 @@ namespace PrimeNumbers
 
             ++checkedNum;
         }
+
+        std::osyncstream{ std::cout } << "Prime found: " << prime << std::endl;
 
         return prime;
     }

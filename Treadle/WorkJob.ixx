@@ -1,5 +1,6 @@
 #include <functional>
 #include <iostream>
+#include <syncstream>
 #include <thread>
 
 export module WorkJob;
@@ -22,7 +23,7 @@ Job::Job(std::function<void(void)> job)
 
 void Job::Execute()
 {
-	std::cout << "Executing Job on thread: " << std::this_thread::get_id();
+	std::osyncstream{ std::osyncstream{ std::cout } } << "Executing Job on thread: " << std::this_thread::get_id() << std::endl;
 	m_fn();
 }
 
