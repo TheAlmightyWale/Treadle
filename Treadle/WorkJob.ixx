@@ -23,7 +23,6 @@ Job::Job(std::function<void(void)> job)
 
 void Job::Execute()
 {
-	std::osyncstream{ std::osyncstream{ std::cout } } << "Executing Job on thread: " << std::this_thread::get_id() << std::endl;
 	m_fn();
 }
 
