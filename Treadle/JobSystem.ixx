@@ -4,6 +4,13 @@
 #include <functional>
 #include <chrono>
 
+
+//TODO: future improvements
+// work stealing - implementation and benchmarking
+// dependant job chains
+// Queues accept: co-routines, lambdas and functors with variable arguments 
+// Returning / retrieving completed results from work??
+
 export module JobSystem;
 
 import WorkJob;
@@ -27,11 +34,15 @@ public:
 	~JobSystem();
 
 	JobQueue& GetQueue();
+	void Pause();
+	void Resume();
 
 private:
 	JobQueue m_jobs;
 	std::vector<std::thread> m_threads;
 	std::stop_source m_stopSource;
+	//Add barrier / other pause token for pausing and resuming?
+	// either that or hold on to workers and pause each of them
 };
 
 JobSystem::JobSystem(uint32_t numThreads)
@@ -52,12 +63,20 @@ JobQueue& JobSystem::GetQueue()
 	return m_jobs;
 }
 
+void JobSystem::Pause()
+{
+	for (auto& thread : m_threads)
+	{
+		
+	}
+}
+
+void JobSystem::Resume()
+{
+}
+
 JobSystem::~JobSystem()
 {
-	//wait 3 seconds cause
-	using namespace std::literals::chrono_literals;
-	std::this_thread::sleep_for(3s);
-
 	//Send stop signal to workers
 	m_stopSource.request_stop();
 
