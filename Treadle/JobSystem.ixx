@@ -1,9 +1,9 @@
+module;
 #include <cstdint>
 #include <vector>
 #include <thread>
 #include <functional>
 #include <chrono>
-
 
 //TODO: future improvements
 // work stealing - implementation and benchmarking

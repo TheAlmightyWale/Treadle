@@ -1,3 +1,4 @@
+module;
 #include <functional>
 #include <stop_token>
 #include <optional>

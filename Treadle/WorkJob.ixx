@@ -1,3 +1,4 @@
+module;
 #include <functional>
 #include <iostream>
 #include <syncstream>
