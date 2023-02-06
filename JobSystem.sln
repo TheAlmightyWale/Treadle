@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreadleBenchmarks", "Benchm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TreadleTests", "TreadleTests\TreadleTests.vcxproj", "{27D1532A-C4FB-4ED5-9C48-67F2E5F390DE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Turvy", "Turvy\Turvy.vcxproj", "{A193DEE7-F8D1-4381-AB63-A368CF0E6727}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{27D1532A-C4FB-4ED5-9C48-67F2E5F390DE}.Release|x64.Build.0 = Release|x64
 		{27D1532A-C4FB-4ED5-9C48-67F2E5F390DE}.Release|x86.ActiveCfg = Release|Win32
 		{27D1532A-C4FB-4ED5-9C48-67F2E5F390DE}.Release|x86.Build.0 = Release|Win32
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Debug|x64.ActiveCfg = Debug|x64
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Debug|x64.Build.0 = Debug|x64
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Debug|x86.ActiveCfg = Debug|Win32
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Debug|x86.Build.0 = Debug|Win32
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Release|x64.ActiveCfg = Release|x64
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Release|x64.Build.0 = Release|x64
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Release|x86.ActiveCfg = Release|Win32
+		{A193DEE7-F8D1-4381-AB63-A368CF0E6727}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

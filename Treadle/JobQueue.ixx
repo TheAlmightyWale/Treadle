@@ -1,12 +1,13 @@
 module;
+
 #include <queue>
-#include <mutex>
 #include <condition_variable>
 #include <optional>
 
 export module JobQueue;
 
 import WorkJob;
+import Locks;
 
 namespace Treadle
 {
@@ -23,13 +24,13 @@ namespace Treadle
 
 	private:
 		std::queue<Job> m_queue;
-		std::mutex m_mutex;
+		Locks::SpinLock m_spinLock;
 		std::atomic_bool m_bEmpty;
 	};
 
 	void JobQueue::Push(Job job)
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<Locks::SpinLock> lock(m_spinLock);
 		m_queue.emplace(job);
 		if (m_bEmpty) m_bEmpty = false;
 	}
@@ -41,7 +42,7 @@ namespace Treadle
 
 	std::optional<Job> JobQueue::Pop()
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<Locks::SpinLock> lock(m_spinLock);
 		if (m_queue.empty())
 		{
 			if (!m_bEmpty) m_bEmpty = true;

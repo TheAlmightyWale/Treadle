@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{7c90f81f-3e27-4297-b12c-995c4e30a3c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WorkJob.ixx">
@@ -27,5 +30,16 @@
     <ClCompile Include="JobQueue.ixx">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="WorkStealingWorker.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkStealingQueue.ixx">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Readme.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
 </Project>
