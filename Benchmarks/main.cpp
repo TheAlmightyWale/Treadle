@@ -77,9 +77,7 @@ static void BM_JobSystem(benchmark::State& state)
 } 
 
 BENCHMARK(BM_JobSystem)->ArgsProduct({
-	//TODO check for false sharing as to why 128 threads is the fastest we achieve
-	//https://stackoverflow.com/questions/5987376/why-is-having-more-threads-than-cores-faster
-	benchmark::CreateRange(1,256,2), // Threads used
+	benchmark::CreateRange(1,64,2), // Threads used
 	benchmark::CreateDenseRange(1,3,1), // Job sizes (1 - small, 2 - large, 3 - mixed small and large)
 	benchmark::CreateRange(100, 500, 100) // Jobs queued
 	})->UseRealTime();

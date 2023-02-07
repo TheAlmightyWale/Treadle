@@ -1,9 +1,13 @@
 module;
+#include "OsIncludes.h"
+
 #include <cstdint>
 #include <vector>
 #include <thread>
 #include <functional>
 #include <chrono>
+#include <bitset>
+#include <cassert>
 
 //TODO: future improvements
 // work stealing - implementation and benchmarking
@@ -38,12 +42,13 @@ public:
 	void Resume();
 
 private:
+
+	void SetWorkerThreadAffinity(std::bitset<64> threadAffinityBitMask, std::thread& thread);
+
 	JobQueue m_jobs;
 	std::vector<std::thread> m_threads;
 	std::vector<std::unique_ptr<Worker>> m_workers;
 	std::stop_source m_stopSource;
-	//Add barrier / other pause token for pausing and resuming?
-	// either that or hold on to workers and pause each of them
 };
 
 JobSystem::JobSystem(uint32_t numThreads)
@@ -51,11 +56,14 @@ JobSystem::JobSystem(uint32_t numThreads)
 	, m_jobs()
 	, m_threads()
 {
+	assert(numThreads <= 64 /*Cannot handle more than 64 threads currently*/);
+
 	for (uint32_t i = 0; i < numThreads; ++i)
 	{
 		m_workers.push_back(std::make_unique<Worker>(m_jobs, i));
 		auto workFunction = std::bind(&Worker::Run, m_workers[i].get(), m_stopSource.get_token());
-		m_threads.emplace_back(workFunction);
+		auto& newThread = m_threads.emplace_back(workFunction);
+		SetWorkerThreadAffinity(1i64 << i, newThread);
 	}
 }
 
@@ -80,6 +88,18 @@ void JobSystem::Resume()
 	{
 		worker->Resume();
 	}
+}
+
+void JobSystem::SetWorkerThreadAffinity(std::bitset<64> threadAffinityBitMask, std::thread& thread)
+{
+#ifdef _WIN64
+	DWORD_PTR affinityMask = threadAffinityBitMask.to_ulong();
+	DWORD_PTR res = SetThreadAffinityMask(thread.native_handle(), affinityMask);
+	assert(res > 0 /* "Failed to set thread affinity mask" */);
+#else
+	static_assert(false, "Implmentation for other OS' required");
+#endif 
+
 }
 
 JobSystem::~JobSystem()
