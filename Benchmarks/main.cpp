@@ -3,8 +3,9 @@
 #include <chrono>
 #include <thread>
 #include <functional>
-
-import JobSystem;
+#include "JobSystem.h"
+#include "JobQueue.h"
+#include "WorkJob.h"
 
 auto smallJobLambda = []()
 {

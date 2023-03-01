@@ -1,33 +1,9 @@
-module;
-
-#include <queue>
-#include <condition_variable>
-#include <optional>
-
-export module JobQueue;
-
-import WorkJob;
-import Locks;
+#include "JobQueue.h"
+#include "WorkJob.h"
+#include "Locks.h"
 
 namespace Treadle
 {
-
-	export class JobQueue
-	{
-	public:
-		JobQueue() noexcept = default;
-
-		std::optional<Job> Pop();
-		void Push(Job job);
-		//Just reading this result, so does not need to be atomic
-		bool Empty();
-
-	private:
-		std::queue<Job> m_queue;
-		Locks::SpinLock m_spinLock;
-		std::atomic_bool m_bEmpty;
-	};
-
 	void JobQueue::Push(Job job)
 	{
 		std::unique_lock<Locks::SpinLock> lock(m_spinLock);
@@ -35,7 +11,7 @@ namespace Treadle
 		if (m_bEmpty) m_bEmpty = false;
 	}
 
-	bool JobQueue::Empty()
+	bool JobQueue::Empty() noexcept
 	{
 		return m_bEmpty;
 	}

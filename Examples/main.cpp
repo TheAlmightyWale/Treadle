@@ -5,10 +5,11 @@
 #include <syncstream>
 #include <random>
 
+#include "JobSystem.h"
+#include "JobQueue.h"
+#include "WorkJob.h"
+
 import PrimeNumbers;
-import JobSystem;
-import JobQueue;
-import WorkJob;
 
 auto main(int argc, char* argv[]) -> int
 {

@@ -134,23 +134,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="JobQueue.ixx" />
-    <ClCompile Include="JobSystem.ixx" />
-    <ClCompile Include="Worker.ixx" />
-    <ClCompile Include="WorkJob.ixx" />
-    <ClCompile Include="WorkStealingQueue.ixx" />
-    <ClCompile Include="WorkStealingWorker.ixx" />
+    <ClCompile Include="JobQueue.cpp" />
+    <ClCompile Include="JobQueue.h" />
+    <ClCompile Include="JobSystem.cpp" />
+    <ClCompile Include="JobSystem.h" />
+    <ClCompile Include="Locks.cpp" />
+    <ClCompile Include="Worker.cpp" />
+    <ClCompile Include="WorkJob.cpp" />
+    <ClCompile Include="WorkJob.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Turvy\Turvy.vcxproj">
-      <Project>{a193dee7-f8d1-4381-ab63-a368cf0e6727}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="Locks.h" />
     <ClInclude Include="OsIncludes.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

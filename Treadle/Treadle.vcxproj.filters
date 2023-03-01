@@ -18,23 +18,29 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WorkJob.ixx">
+    <ClCompile Include="WorkJob.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="Worker.ixx">
+    <ClCompile Include="JobSystem.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="JobSystem.ixx">
+    <ClCompile Include="JobQueue.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="JobQueue.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="Worker.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WorkStealingWorker.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="WorkJob.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WorkStealingQueue.ixx">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="JobQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Locks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JobSystem.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OsIncludes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Worker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Locks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
