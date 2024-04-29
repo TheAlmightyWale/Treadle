@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+Benchmarks/Intel® VTune™ Profiler Results
+GPUCache
+DawnCache

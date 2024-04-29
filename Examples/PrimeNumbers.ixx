@@ -1,13 +1,9 @@
 #include <cstdint>
-#include <iostream>
-#include <syncstream>
 
 export module PrimeNumbers;
 
 namespace PrimeNumbers
 {
-    static std::atomic<int> totalPrimesFound;
-
     export bool IsPrime(uint64_t number)
     {
         //Purposely inefficient prime finding algorithm
@@ -42,9 +38,6 @@ namespace PrimeNumbers
 
             ++checkedNum;
         }
-
-        totalPrimesFound = totalPrimesFound + 1;
-        std::osyncstream{ std::cout } << "Prime found: " << prime << " number: " << totalPrimesFound << std::endl;
 
         return prime;
     }

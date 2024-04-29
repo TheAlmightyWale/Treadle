@@ -5,7 +5,8 @@ namespace Treadle
 {
 	class Job {
 	public:
-		Job(std::function<void(void)> job);
+		Job(std::function<void(void)> job) noexcept;
+		Job() noexcept;
 		void Execute();
 
 	private:

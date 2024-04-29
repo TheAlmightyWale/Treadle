@@ -2,12 +2,16 @@
 
 namespace Treadle
 {
-	Job::Job(std::function<void(void)> job)
-		: m_fn(job)
+	Job::Job(std::function<void(void)> job) noexcept
+		: m_fn{ job }
+	{}
+
+	Job::Job() noexcept
+		:m_fn{nullptr}
 	{}
 
 	void Job::Execute()
 	{
-		m_fn();
+		if(m_fn) m_fn();
 	}
 }

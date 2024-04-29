@@ -7,16 +7,18 @@
 #include "JobQueue.h"
 #include "WorkJob.h"
 
+import PrimeNumbers;
+
 auto smallJobLambda = []()
 {
-	//Delay for very small amount of time
-	std::this_thread::sleep_for(std::chrono::microseconds(3));
+	//Find a small prime
+	PrimeNumbers::Find(50);
 };
 
 auto shesAPrettyBigJobMateLambda = []()
 {
-	//Delay for a larger amount of time
-	std::this_thread::sleep_for(std::chrono::milliseconds(3));
+	//Find a big prime
+	PrimeNumbers::Find(1000);
 };
 
 //Performance characteristics we wish to test:
@@ -25,7 +27,6 @@ auto shesAPrettyBigJobMateLambda = []()
 // Test larger jobs
 // Test mix of longer running and shorter running jobs
 //Base of single thread vs many threads
-
 static void BM_JobSystem(benchmark::State& state)
 {
 	for (auto _ : state)
@@ -78,10 +79,9 @@ static void BM_JobSystem(benchmark::State& state)
 } 
 
 BENCHMARK(BM_JobSystem)->ArgsProduct({
-	benchmark::CreateRange(1,64,2), // Threads used
+	benchmark::CreateRange(1,16,2), // Threads used
 	benchmark::CreateDenseRange(1,3,1), // Job sizes (1 - small, 2 - large, 3 - mixed small and large)
 	benchmark::CreateRange(100, 500, 100) // Jobs queued
-	})->UseRealTime();
-
+	})->UseRealTime()->Threads(16);
 
 BENCHMARK_MAIN();

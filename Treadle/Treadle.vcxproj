@@ -142,6 +142,7 @@
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="WorkJob.cpp" />
     <ClCompile Include="WorkJob.h" />
+    <ClCompile Include="WorkStealingQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.md" />
@@ -150,6 +151,8 @@
     <ClInclude Include="Locks.h" />
     <ClInclude Include="OsIncludes.h" />
     <ClInclude Include="Worker.h" />
+    <ClInclude Include="WorkStealingQueue.h" />
+    <ClInclude Include="WorkStealingWorker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
