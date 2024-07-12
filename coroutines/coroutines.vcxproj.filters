@@ -21,12 +21,27 @@
     <ClCompile Include="MultiDependentTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DependedTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DependentTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MultiDependentTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DependedTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AtomicCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpmcQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

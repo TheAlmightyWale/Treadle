@@ -1,12 +1,11 @@
 #pragma once
 #include <coroutine>
-#include <atomic>
+#include "AtomicCounter.h"
 #include <memory>
 
 namespace Treadle
 {
-	using CounterType = uint32_t;
-	using Counter_t = std::atomic<uint32_t>;
+
 
 	//Takes in some set of tasks and returns a single awaitable 
 	// that will have a counter atached to all of the tasks given to it
@@ -15,15 +14,12 @@ namespace Treadle
 		struct promise_type;
 		struct Awaiter;
 
-		Counter_t counter_;
-		std::coroutine_handle<promise_type> coro_;
+		//Count of tasks this task is dependent on
+		Counter_t waitCount_;
+		//coroutine that should be continued once counter is complete
+		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 
-		Awaiter operator co_await() const && noexcept;
-
-		void return_void() const {}
-
-		void Resume() const noexcept;
-		bool Done() const noexcept;
+		Awaiter operator co_await() & noexcept;
 
 		~MultiDependentTask();
 
@@ -33,45 +29,49 @@ namespace Treadle
 		MultiDependentTask& operator=(MultiDependentTask&) const = delete;
 		MultiDependentTask(MultiDependentTask&) = delete;
 
+		explicit MultiDependentTask(uint32_t count) noexcept;
+
 	private:
-		explicit MultiDependentTask(std::coroutine_handle<promise_type> h) noexcept;
+		
 		void Swap_(MultiDependentTask& rhs) noexcept;
 	};
 
 	struct MultiDependentTask::Awaiter {
-		explicit Awaiter(std::coroutine_handle<promise_type> currentCoro) : coro_(currentCoro)
+		explicit Awaiter(MultiDependentTask& task) : task_(task)
 		{}
 
 		bool await_ready() const noexcept;
 
-		std::coroutine_handle<> await_suspend(std::coroutine_handle<> h) const noexcept;
+		bool await_suspend(std::coroutine_handle<> h) const noexcept;
 
-		void await_resume() const noexcept {}
+		void await_resume() const noexcept;
 
-		std::coroutine_handle<promise_type> coro_;
+		MultiDependentTask& task_;
 	};
 
 	struct MultiDependentTask::promise_type {
-		
-		//this wait count should always be valid as it is tied to the coroutine associated with this promise
-		Counter_t& waitCount_;
-		//the coro that is depends on these set of tasks to be completed
-		std::coroutine_handle<> dependent_;
-
-		MultiDependentTask get_return_object() noexcept {
-			return MultiDependentTask{ std::coroutine_handle<MultiDependentTask::promise_type>::from_promise(*this) };
+		auto get_return_object() noexcept {
+			return std::coroutine_handle<MultiDependentTask::promise_type>::from_promise(*this);
 		}
 
-		std::suspend_always initial_suspend() const { return {}; }
+		std::suspend_always initial_suspend() const noexcept{ return {}; }
+
+		std::suspend_always final_suspend() const noexcept { return {}; }
+
+		[[noreturn]]
+		void unhandled_exception() const noexcept { std::terminate(); }
+
+		void return_void() const {}
+
 	};
 
-	struct MultiDependentTask::FinalizeTask {
+	/*struct MultiDependentTask::FinalizeTask {
 		bool await_ready() const noexcept {
 			return false;
 		}
 
-		void await_resume() const noexcept {}
+		void await_resume() const noexcept;
 
 		std::coroutine_handle<> await_suspend(std::coroutine_handle<MultiDependentTask::promise_type> h) const noexcept;
-	};
+	};*/
 }
