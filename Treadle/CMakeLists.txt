@@ -3,6 +3,22 @@
 #
 cmake_minimum_required (VERSION 3.20)
 
+option(BUILD_RUN_TESTS "Build and run tests" TRUE)
+option(BUILD_RUN_BENCHMARKS "Build and run benchmarks" TRUE)
+
+function(fetch_gtest)
+	include(FetchContent)
+	FetchContent_Declare(
+		googletest
+		URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
+		DOWNLOAD_EXTRACT_TIMESTAMP true
+	)
+
+	# For Windows: Prevent overriding the parent project's compiler/linker settings
+	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+	FetchContent_MakeAvailable(googletest)
+endfunction()
+
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
@@ -25,16 +41,3 @@ if(BUILD_RUN_BENCHMARKS)
 	enable_testing()
 	add_subdirectory(benchmarks)
 endif()
-
-function(fetch_gtest)
-	include(FetchContent)
-	FetchContent_Declare(
-		googletest
-		URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
-		DOWNLOAD_EXTRACT_TIMESTAMP true
-	)
-
-	# For Windows: Prevent overriding the parent project's compiler/linker settings
-	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-	FetchContent_MakeAvailable(googletest)
-endfunction()

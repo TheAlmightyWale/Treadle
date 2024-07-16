@@ -1,4 +1,7 @@
 #pragma once
+#include <iostream>
+#include <coroutine>
+#include <utility>
 
 namespace Treadle
 {
@@ -23,12 +26,67 @@ namespace Treadle
         return num;
     }
 
+    template<typename PromiseType> //TODO add concept to restrict promise type
     struct Task {
+
+        using promise_type = PromiseType;
+
+        Task(Task&& t) noexcept
+            : coro_(std::exchange(t.coro_, {}))
+        {}
+
+        ~Task() {
+            if (coro_) coro_.destroy();
+        }
+
+        void Resume() { coro_.resume(); }
+        bool Done() { return coro_.done(); }
+
+        struct Awaiter {
+
+            explicit Awaiter(std::coroutine_handle<PromiseType> coro_) : coro_(coro_)
+            {}
+
+            bool await_ready() const noexcept {
+                return false;
+            }
+
+            std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h) {
+                return coro_;
+            }
+
+            void await_resume() const noexcept 
+            {}
+
+            std::coroutine_handle<PromiseType> coro_;
+        };
+
+        Awaiter operator co_await() && noexcept
+        {
+            return Awaiter{ coro_ };
+        }
+
+        explicit Task(std::coroutine_handle<PromiseType> h) noexcept
+            : coro_(h)
+        {}
+
+        int const m_id = getTGid();
+
+    private:
+        std::coroutine_handle<PromiseType> coro_;
+        
+    };
+
+    struct LoggedPromise {};
+
+    template<>
+    struct Task<LoggedPromise> {
         struct promise_type {
-            Task get_return_object() noexcept {
+            Task<LoggedPromise> get_return_object() noexcept {
                 std::cout << "Getting return object pt:" << m_id << "\n";
                 return Task{ std::coroutine_handle<promise_type>::from_promise(*this) };
             }
+
             std::suspend_always initial_suspend() const {
                 std::cout << "Initial suspend pt:" << m_id << "\n";
                 return {};
@@ -97,14 +155,17 @@ namespace Treadle
             return aw;
         }
 
-    private:
         explicit Task(std::coroutine_handle<promise_type> h) noexcept
             : coro_(h)
         {
             std::cout << "Creating Task: " << m_id << " with coro prom: " << h.promise().m_id << "\n";
         }
+
+        int const m_id = getTGid();
+    private:
         std::coroutine_handle<promise_type> coro_;
-        int m_id = getTGid();
     };
+
+
 }
 
