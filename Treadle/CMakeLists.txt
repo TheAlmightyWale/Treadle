@@ -29,6 +29,7 @@ project ("Treadle" VERSION 0.1 DESCRIPTION "C++20 cooperative threading job syst
 
 # Add source to this project's executable.
 add_subdirectory("src/")
+add_subdirectory("treadle2/")
 
 if (BUILD_RUN_TESTS)
 	fetch_gtest()

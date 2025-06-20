@@ -5,25 +5,27 @@
 
 namespace Treadle
 {
-    static int gid = 0;
-    static int getGid() {
-        int num = gid;
-        ++gid;
-        return num;
-    }
+    namespace {
+		static int gid = 0;
+		static int getGid() {
+			int num = gid;
+			++gid;
+			return num;
+		}
 
-    static int agid = 0;
-    static int getAGid() {
-        int num = agid;
-        ++agid;
-        return num;
-    }
+		static int agid = 0;
+		static int getAGid() {
+			int num = agid;
+			++agid;
+			return num;
+		}
 
-    static int tgid = 0;
-    static int getTGid() {
-        int num = tgid;
-        ++tgid;
-        return num;
+		static int tgid = 0;
+		static int getTGid() {
+			int num = tgid;
+			++tgid;
+			return num;
+		}
     }
 
     template<typename PromiseType> //TODO add concept to restrict promise type

@@ -42,7 +42,7 @@ namespace Treadle{
 			return nullptr;
 		}
 
-		std::cout << "Set core affinity for " << name << " " << pThread->get_id() << " to " << coreId << "\n";
+		//std::cout << "Set core affinity for " << name << " " << pThread->get_id() << " to " << coreId << "\n";
 
 		return pThread;
 	}

@@ -53,14 +53,14 @@ namespace Treadle
 			//should terminate as marked noexcept
 		}
 
-		promise_type(Counter_t* pCounter, std::coroutine_handle<>* pContinuation) noexcept
-			: pDependedTasksRemaining(pCounter)
-			, dependentCoro(pContinuation)
+		promise_type(Counter_t& counter, std::coroutine_handle<>& continuation) noexcept
+			: dependedTasksRemaining(counter)
+			, dependentCoro(continuation)
 		{}
 
 		//Need to guarantee that the counter this points to is always in scope
-		Counter_t* pDependedTasksRemaining;
+		Counter_t& dependedTasksRemaining;
 		//The multidependentTask to resume once all BasicTasks are complete
-		std::coroutine_handle<>* dependentCoro;
+		std::coroutine_handle<>& dependentCoro;
 	};
 }

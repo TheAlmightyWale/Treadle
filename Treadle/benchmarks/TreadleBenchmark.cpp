@@ -4,7 +4,6 @@
 #include "../src/JobSystem.h"
 #include "../src/Task.h"
 #include "../src/MpmcQueue.hpp"
-#include "../src/BasicPromise.h"
 
 namespace {
 
@@ -71,7 +70,7 @@ namespace Bench = ankerl::nanobench;
 
 
 constexpr uint32_t k_numTasks = 100;
-Treadle::Task<Treadle::BasicPromise> CreateSmallPrimeTask() {
+Treadle::Task<Treadle::LoggedPromise> CreateSmallPrimeTask() {
     Bench::doNotOptimizeAway(SmallPrime());
     co_return;
 }

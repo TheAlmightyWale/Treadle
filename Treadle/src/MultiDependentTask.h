@@ -5,6 +5,57 @@
 
 namespace Treadle
 {
+	template<typename PromiseType>
+	struct MdTask {
+		using promise_type = PromiseType;
+
+		struct FinalizeTask;
+		struct Awaiter;
+
+		//Count of tasks this task is dependent on
+		Counter_t waitCount_;
+		//coroutine that should be continued once this task and dependents have been completed
+		//todo needed?
+		std::coroutine_handle<> continuation_ = std::noop_coroutine();
+
+		Awaiter operator co_await() & noexcept
+		{
+			return Awaiter{ *this };
+		}
+
+		~MdTask() {}
+
+		MdTask& operator=(MdTask&& rhs) noexcept
+		{
+			if (std::addressof(rhs) != this) {
+				Swap_(rhs);
+			}
+			return *this;
+		}
+
+		MdTask(MdTask&& rhs) noexcept
+		{
+			if (std::addressof(rhs) != this) {
+				Swap_(rhs);
+			}
+		}
+
+		MdTask& operator=(MdTask&) const = delete;
+		MdTask(MdTask&) = delete;
+
+		explicit MdTask(uint32_t count) noexcept
+			:waitCount_(count)
+		{}
+
+	private:
+
+		void Swap_(MdTask& rhs) noexcept
+		{
+			std::swap(continuation_, rhs.continuation_);
+			std::swap(waitCount_, rhs.waitCount_);
+		}
+	};
+
 	//Takes in some count of tasks and returns a single awaitable 
 	// that will have a counter atached to all of the tasks given to it
 	struct MultiDependentTask {

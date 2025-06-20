@@ -90,9 +90,9 @@ namespace Treadle {
 
 	std::coroutine_handle<> DependedTask::FinalizeTask::await_suspend(std::coroutine_handle<DependedTask::promise_type> h) const noexcept
 	{
-		(*h.promise().pDependedTasksRemaining)--;
-		std::cout << "depended= " << *h.promise().pDependedTasksRemaining << "\n";
-		if (*h.promise().pDependedTasksRemaining <= 0) return *(h.promise().dependentCoro);
+		(h.promise().dependedTasksRemaining)--;
+		std::cout << "depended= " << h.promise().dependedTasksRemaining << "\n";
+		if (h.promise().dependedTasksRemaining <= 0) return h.promise().dependentCoro;
 
 		return std::noop_coroutine();
 	}

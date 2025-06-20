@@ -4,14 +4,13 @@
 #include <unordered_map>
 #include "MpmcQueue.hpp"
 #include "Task.h"
-#include "BasicPromise.h"
 #include "ThreadSafeMap.hpp"
 
 namespace Treadle
 {
 	class JobSystem {
 	public:
-		using TaskType = Task<BasicPromise>;
+		using TaskType = Task<LoggedPromise>;
 		using TaskIdType = int;
 		using MemoryType = ThreadSafeMap<TaskIdType, TaskType>;
 
