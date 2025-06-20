@@ -96,8 +96,10 @@ namespace Treadle2 {
 		task.Resume();
 		EXPECT_FALSE(bSet);
 
+		//TODO have not chained anything at this point, we need to add another
+		//task that we complete to then see if initial task continues automatically
+
 		//assert that variable was set to true
-		task.Resume();
 		EXPECT_TRUE(bSet);
 	}
 

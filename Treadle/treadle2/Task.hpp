@@ -10,13 +10,11 @@ namespace Treadle2
 	using CounterType = uint32_t;
 	using Counter_t = std::atomic<CounterType>;
 
-	struct FinalAwaitable;
-
 	//TODO Policy type these? We only want custom behavior for
 	// final suspend classes
 	//Along with this we will want to also hide implementation classes
 
-	template<typename ReturnType, typename FinalSuspendAwaitableType>
+	template<typename ReturnType>
 	struct Promise {
 
 		Task<ReturnType> get_return_object() noexcept;
@@ -25,7 +23,7 @@ namespace Treadle2
 			return {};
 		}
 
-		FinalSuspendAwaitableType final_suspend() const noexcept
+		std::suspend_always final_suspend() const noexcept
 		{
 			return {};
 		}
@@ -58,8 +56,8 @@ namespace Treadle2
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
-	template<typename FinalSuspendAwaitableType>
-	struct Promise<void, FinalSuspendAwaitableType> {
+	template<>
+	struct Promise<void> {
 
 		Task<void> get_return_object() noexcept;
 
@@ -67,7 +65,9 @@ namespace Treadle2
 			return {};
 		}
 
-		FinalSuspendAwaitableType final_suspend() const noexcept;
+		std::suspend_always final_suspend() const noexcept {
+			return {};
+		}
 
 		void unhandled_exception() const noexcept {
 			std::terminate();
@@ -95,7 +95,7 @@ namespace Treadle2
 	struct Task
 	{
 	public:
-		using promise_type = Promise<ReturnType, FinalAwaitable>;
+		using promise_type = Promise<ReturnType>;
 
 		Task(Task&& t) noexcept
 			: coro_(std::exchange(t.coro_, {}))
@@ -138,14 +138,6 @@ namespace Treadle2
 			std::coroutine_handle<promise_type> coro_;
 		};
 
-		struct FinalAwaitable : AwaitableBase
-		{
-			template<PromiseType>
-			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h)
-			{
-				return h.promise().continuation_();
-			}
-		};
 
 		//R-Value Task
 		auto operator co_await() const && noexcept
