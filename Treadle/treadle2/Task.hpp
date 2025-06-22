@@ -10,23 +10,52 @@ namespace Treadle2
 	using CounterType = uint32_t;
 	using Counter_t = std::atomic<CounterType>;
 
-	//TODO Policy type these? We only want custom behavior for
-	// final suspend classes
-	//Along with this we will want to also hide implementation classes
+	struct PromiseBase
+	{
+		struct FinalAwaitable
+		{
+		public:
+			bool await_ready() const noexcept {
+				return false;
+			}
 
-	template<typename ReturnType>
-	struct Promise {
+			template<typename PromiseType>
+			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h)  noexcept{
+				return h.promise().continuation_;
+			}
 
-		Task<ReturnType> get_return_object() noexcept;
+			void await_resume() const noexcept {}
+
+		private:
+		};
+
+		PromiseBase() = default;
 
 		std::suspend_always initial_suspend() const noexcept {
 			return {};
 		}
 
-		std::suspend_always final_suspend() const noexcept
-		{
+		FinalAwaitable final_suspend() const noexcept {
 			return {};
 		}
+
+		void set_continuation(std::coroutine_handle<> coro)
+		{
+			continuation_ = coro;
+		}
+
+	private:
+		std::coroutine_handle<> continuation_ = std::noop_coroutine();
+	};
+
+	//TODO Policy type these? We only want custom behavior for
+	// final suspend classes
+	//Along with this we will want to also hide implementation classes
+
+	template<typename ReturnType>
+	struct Promise : PromiseBase {
+
+		Task<ReturnType> get_return_object() noexcept;
 
 		void unhandled_exception() const noexcept {
 			std::terminate();
@@ -45,37 +74,18 @@ namespace Treadle2
 			result_ = value;
 		}
 
-		void set_continuation(std::coroutine_handle<> coro)
-		{
-			continuation_ = coro;
-		}
-
 	private:
 		Counter_t remainingTasks_;
 		ReturnType result_;
-		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
 	template<>
-	struct Promise<void> {
+	struct Promise<void> : PromiseBase {
 
 		Task<void> get_return_object() noexcept;
 
-		std::suspend_always initial_suspend() const noexcept {
-			return {};
-		}
-
-		std::suspend_always final_suspend() const noexcept {
-			return {};
-		}
-
 		void unhandled_exception() const noexcept {
 			std::terminate();
-		}
-
-		void set_continuation(std::coroutine_handle<> coro)
-		{
-			continuation_ = coro;
 		}
 
 		void return_void() const noexcept {}
@@ -83,12 +93,6 @@ namespace Treadle2
 		void result() {}
 
 	private:
-		std::coroutine_handle<> continuation_ = std::noop_coroutine();
-	};
-
-	struct PromiseBase
-	{
-
 	};
 
 	template <typename ReturnType>
