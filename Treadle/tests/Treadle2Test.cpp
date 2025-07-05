@@ -1,36 +1,10 @@
 #include "gtest/gtest.h"
-#include "../treadle2/Task.hpp"
-#include "../treadle2/Wait.hpp"
+#include "TestUtils.hpp"
+#include <Task.hpp>
 
 #include <vector>
 
 namespace Treadle2 {
-	//TEST(SplitTask, splitsAndRuns) {
-
-	//}
-
-	//Task<DependedPromise> CreateDependedTask(Counter_t& counter, std::coroutine_handle<>& continuation) noexcept {
-	//	co_return;
-	//}
-
-	//Task<Promise> CompleteTest(Counter_t const& checkedCounter) noexcept {
-	//	EXPECT_EQ(checkedCounter, 0);
-	//	co_return;
-	//}
-
-	//TEST(SharedCounter, InitializeWithMultipleTasks) {
-	//	Counter_t counter;
-	//	auto finishingTask = CompleteTest(counter);
-
-	//	std::vector <Task<DependedPromise>> tasks;
-	//	for (int i = 0; i < 5; i++) {
-	//		tasks.emplace_back(CreateDependedTask(counter, finishingTask));
-	//	}
-	//}
-
-	//TEST(SharedCounter, DecrementsOnCompletion) {
-
-	//}
 
 	Task<void> DoThing() {
 		co_return;
@@ -62,7 +36,7 @@ namespace Treadle2 {
 		EXPECT_TRUE(task.Done());
 	}
 
-	TEST(Task, ReturnSome) {
+	TEST(TaskTests, ReturnSome) {
 		auto task = GetNum();
 		task.Resume();
 
@@ -70,37 +44,20 @@ namespace Treadle2 {
 		EXPECT_EQ(task.Value(), 1);
 	}
 
-	TEST(Task, PauseThenReturn) {
-		auto task = CalcSum();
-		task.Resume();
-
-		EXPECT_FALSE(task.Done());
-
-		while (!task.Done())
-		{
-			task.Resume();
-		}
-		EXPECT_EQ(task.Value(), 3);
-	}
-
-	bool bSet = false;
-	Task<void> WaitAndSet()
-	{
-		co_await DoThing();
-		bSet = true;
-	}
-
-	TEST(Task, callContinuationOnCompletion) {
+	TEST(TaskTests, callContinuationOnCompletionSingleDependency) {
 		//set up continuation that sets a value to true after awaiting another task
-		auto task = WaitAndSet();
+		FlagSetter setter;
+		Event event;
+		auto dependedTask = WaitOnEvent(event);
+		auto task = setter.WaitAndSet(dependedTask);
 		task.Resume();
-		EXPECT_FALSE(bSet);
+		EXPECT_FALSE(setter.GetFlag());
 
-		//TODO have not chained anything at this point, we need to add another
-		//task that we complete to then see if initial task continues automatically
+		//depended Task should finish and then immediately continue task and set it's flag
+		dependedTask.Resume();
 
 		//assert that variable was set to true
-		EXPECT_TRUE(bSet);
+		EXPECT_TRUE(setter.GetFlag());
 	}
 
 
@@ -120,12 +77,6 @@ namespace Treadle2 {
 
 	//}
 
-	//TEST(SyncWaitTests, WaitOne) {
 
-	//}
-
-	//TEST(SyncWaitTests, WaitMany) {
-
-	//}
 }
 

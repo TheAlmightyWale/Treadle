@@ -1,6 +1,9 @@
 #pragma once
 #include <coroutine>
 #include <atomic>
+#include <exception>
+#include <utility>
+#include "TaskTraits.hpp"
 
 namespace Treadle2
 {
@@ -20,7 +23,7 @@ namespace Treadle2
 			}
 
 			template<typename PromiseType>
-			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h)  noexcept{
+			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h)  noexcept {
 				return h.promise().continuation_;
 			}
 
@@ -28,8 +31,6 @@ namespace Treadle2
 
 		private:
 		};
-
-		PromiseBase() = default;
 
 		std::suspend_always initial_suspend() const noexcept {
 			return {};
@@ -75,7 +76,6 @@ namespace Treadle2
 		}
 
 	private:
-		Counter_t remainingTasks_;
 		ReturnType result_;
 	};
 
@@ -165,7 +165,7 @@ namespace Treadle2
 			{
 				decltype(auto) await_resume() const noexcept
 				{
-					return std::move(coro_.promise().result());
+					return std::move(coro_.promise()).result();
 				}
 			};
 
