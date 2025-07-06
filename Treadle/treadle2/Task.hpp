@@ -101,6 +101,8 @@ namespace Treadle2
 	public:
 		using promise_type = Promise<ReturnType>;
 
+		Task(Task const&) = delete;
+
 		Task(Task&& t) noexcept
 			: coro_(std::exchange(t.coro_, {}))
 		{
@@ -182,8 +184,7 @@ namespace Treadle2
 		return Task{ std::coroutine_handle<Promise>::from_promise(*this) };
 	}
 
-	Task<void> Promise<void>::get_return_object() noexcept {
+	inline Task<void> Promise<void>::get_return_object() noexcept {
 		return Task{ std::coroutine_handle<Promise>::from_promise(*this) };
 	}
-
 }

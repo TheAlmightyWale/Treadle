@@ -1,3 +1,5 @@
+#pragma once
+
 #include <coroutine>
 #include <Task.hpp>
 
@@ -57,15 +59,11 @@ namespace Treadle2
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
-	Task<void> WaitOnEvent(Event& event) noexcept {
-		co_await event;
-	}
-
 	struct FlagSetter
 	{
 		FlagSetter() = default;
 		FlagSetter(FlagSetter&) = default;
-		FlagSetter(FlagSetter&& other)
+		FlagSetter(FlagSetter&& other) 
 			:bDependencyCompleteFlag(other.bDependencyCompleteFlag)
 		{
 		}
