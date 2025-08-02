@@ -3,6 +3,8 @@
 
 namespace Treadle2
 {
+
+	void DoNothing() {}
 	
 	//Wait synchronously for a set of async operations to complete
 	template<IsPollable... AsyncOperationTypes>
@@ -12,12 +14,19 @@ namespace Treadle2
 		while (!done) {
 			done = true;
 			//Resume all tasks
-			((tasks.Resume(), done &= tasks.Done()), ...);
+			((!tasks.Done()? tasks.Resume() : DoNothing(), done &= tasks.Done()), ...);
 		}
 	}
 
 
 	//Depend on a set of async operations to complete before continuing
+	template<class ReturnType, IsPollable... AsyncOperationTypes>
+	Task<ReturnType> AsyncWait(AsyncOperationTypes&... tasks) noexcept
+	{
+		// Create a task that we can await, which will continue once all depended tasks are done
+
+	}
+
 	
 
 }

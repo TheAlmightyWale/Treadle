@@ -69,7 +69,16 @@ namespace Treadle2
 
 	TEST(SyncWaitTests, WaitMany) 
 	{
+		Countdown countdown;
+		Task<void> task1 = WaitOnCountdown(countdown);
+		Task<void> task2 = WaitOnCountdown(countdown);
 
+		EXPECT_FALSE(task1.Done());
+		EXPECT_FALSE(task2.Done());
+		SyncWait(task1, task2);
+
+		EXPECT_TRUE(task1.Done());
+		EXPECT_TRUE(task2.Done());
 	}
 
 	TEST(AsyncWaitTests, AsyncWaitOne) {
