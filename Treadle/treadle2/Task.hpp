@@ -10,9 +10,6 @@ namespace Treadle2
 	template<typename ReturnType>
 	struct Task;
 
-	using CounterType = uint32_t;
-	using Counter_t = std::atomic<CounterType>;
-
 	struct PromiseBase
 	{
 		struct FinalAwaitable
@@ -63,8 +60,8 @@ namespace Treadle2
 		}
 
 		[[nodiscard]]
-		ReturnType result() {
-			return result_;
+		ReturnType&& result() {
+			return std::move(result_);
 		}
 
 		void return_value(ReturnType&& value) {
@@ -102,16 +99,20 @@ namespace Treadle2
 		using promise_type = Promise<ReturnType>;
 
 		Task(Task const&) = delete;
+		Task& operator=(Task const&) = delete;
 
 		Task(Task&& t) noexcept
 			: coro_(std::exchange(t.coro_, {}))
-		{
+		{}
+
+		Task& operator=(Task&& t) noexcept {
+			Swap(t);
+			return *this;
 		}
 
 		explicit Task(std::coroutine_handle<promise_type> coro) noexcept
 			: coro_(coro)
-		{
-		}
+		{}
 
 		~Task() {
 			if (coro_) coro_.destroy();
@@ -121,6 +122,10 @@ namespace Treadle2
 		bool Done() { return coro_.done(); }
 		ReturnType Value() {
 			return coro_.promise().result();
+		}
+
+		void Swap(Task& other) noexcept {
+			std::swap(coro_, other.coro_);
 		}
 
 		struct AwaitableBase
