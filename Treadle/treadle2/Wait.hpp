@@ -1,5 +1,6 @@
 #pragma once
 #include "TaskTraits.hpp"
+#include "MultiTask.hpp"
 
 namespace Treadle2
 {
@@ -20,10 +21,14 @@ namespace Treadle2
 
 
 	//Depend on a set of async operations to complete before continuing
-	template<class ReturnType, IsPollable... AsyncOperationTypes>
-	Task<ReturnType> AsyncWait(AsyncOperationTypes&... tasks) noexcept
+	template<IsPollable... AsyncOperationTypes>
+	MultiTask<void> AsyncWait(AsyncOperationTypes&... tasks) noexcept
 	{
 		// Create a task that we can await, which will continue once all depended tasks are done
+
+		// we don't own the task memory we just create a task, and that will have it's own overloaded
+		// allocator
+
 
 	}
 

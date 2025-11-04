@@ -1,9 +1,11 @@
+//TODO: we must be able to compress this and Task into a single class with mix-in policies or the like
+// rather than have so much duplication
 #pragma once
 #include "TaskTraits.hpp"
 
-// Task that contains a count of all tasks it depends on before it can execute
-//Will then execute automatically when all tasks are done
-namespace Treadle2
+// Task that is created as part of waiting for many tasks, will decrement counter and
+//Will then execute depending task automatically when all tasks are done
+namespace Treadle2::Detail
 {
 	using CounterType = uint32_t;
 	using Counter_t = std::atomic<CounterType>;
@@ -22,7 +24,6 @@ namespace Treadle2
 
 			template<typename PromiseType>
 			std::coroutine_handle<> await_suspend(std::coroutine_handle<CountedPromiseBase> h)  noexcept {
-				//TODO thread safe decrement and swap
 				h.promise().dependedTasksCount_--;
 				if (h.promise().dependedTasksCount_ == 0) {
 					return h.promise().continuation_;
@@ -35,11 +36,15 @@ namespace Treadle2
 		private:
 		};
 
+		explicit CountedPromise(Counter_t& count)
+			: dependedTasksCount_(count)
+		{}
+
 		std::suspend_always initial_suspend() const noexcept {
 			return {};
 		}
 
-		FinalAwaitable final_suspend() const noexcept {
+		DecrementFinalAwaitable final_suspend() const noexcept {
 			return {};
 		}
 
@@ -48,14 +53,10 @@ namespace Treadle2
 			continuation_ = coro;
 		}
 
-		void set_depended_tasks_count(Counter_t count) noexcept
-		{
-			dependedTasksCount_ = count;
-		}
-
 	private:
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
-		Counter_t dependedTasksCount_ = 0; // Number of tasks that must complete before this task can continue
+		//TODO who owns counter memory? - it should be the overall task that waits on the counted tasks
+		Counter_t& dependedTasksCount_; // Number of tasks that must complete before this task can continue
 	};
 
 	template<typename ReturnType>
@@ -136,8 +137,7 @@ namespace Treadle2
 		{
 			AwaitableBase(std::coroutine_handle<promise_type> coro)
 				: coro_(coro)
-			{
-			}
+			{}
 
 			bool await_ready() const noexcept {
 				return false;
