@@ -175,6 +175,11 @@ namespace Treadle2
 			return &dependantCount_;
 		}
 
+		std::coroutine_handle<> GetCoroutine()
+		{
+			return coro_;
+		}
+
 		ReturnType Value()
 		{
 			return coro_.promise().result();

@@ -1,9 +1,11 @@
 #pragma once
 #include "TaskTraits.hpp"
-#include "MultiTask.hpp"
+#include "Task.hpp"
 
 namespace Treadle2
 {
+	namespace Detail
+	{
 		void DoNothing() {}
 
 		Task<void> MakeTask()
@@ -25,19 +27,22 @@ namespace Treadle2
 		}
 	}
 
-
-	//Depend on a set of async operations to complete before continuing
-	template<IsPollable... AsyncOperationTypes>
-	MultiTask<void> AsyncWait(AsyncOperationTypes&... tasks) noexcept
+	// Depend on a set of async operations to complete before continuing
+	template <IsTask... TaskTypes>
+	Task<void> Wait(TaskTypes &...tasks) noexcept
 	{
-		// Create a task that we can await, which will continue once all depended tasks are done
+		// create new Task
+		Task<void> t = Detail::MakeTask();
+		constexpr uint32_t numTasks = sizeof...(tasks);
+		t.InitializeCounter(numTasks);
 
-		// we don't own the task memory we just create a task, and that will have it's own overloaded
-		// allocator
+		// for each task, set counter and continuation
+		(tasks.SetContinuation(t.GetCoroutine()), ...);
+		(tasks.SetCounter(t.GetCounter()), ...);
 
+		// schedule tasks
 
+		return t;
 	}
-
-	
 
 }

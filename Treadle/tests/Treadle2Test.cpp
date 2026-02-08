@@ -45,7 +45,6 @@ namespace Treadle2
 		co_await event;
 	}
 
-
 	TEST(TaskTests, doesNotCallContinuationWhenNotDependant)
 	{
 		// set up continuation that sets a value to true after awaiting another task
