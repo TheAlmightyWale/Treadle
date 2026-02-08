@@ -7,16 +7,18 @@ namespace Treadle2
 {
 	struct TestPromise
 	{
-		std::suspend_always initial_suspend() const noexcept {
+		std::suspend_always initial_suspend() const noexcept
+		{
 			return {};
 		}
 
-		std::suspend_always final_suspend() const noexcept {
+		std::suspend_always final_suspend() const noexcept
+		{
 			return {};
 		}
 	};
 
-	struct Event
+	struct TestEvent
 	{
 		using promise_type = TestPromise;
 
@@ -29,12 +31,13 @@ namespace Treadle2
 			class awaiter
 			{
 			public:
-				awaiter(Event& event) noexcept
+				awaiter(TestEvent &event) noexcept
 					: event_(event)
 				{
 				}
 
-				bool await_ready() const noexcept {
+				bool await_ready() const noexcept
+				{
 					return event_.isSet();
 				}
 
@@ -48,10 +51,10 @@ namespace Treadle2
 				void await_resume() noexcept {}
 
 			private:
-				Event& event_;
+				TestEvent &event_;
 			};
 
-			return awaiter{ *this };
+			return awaiter{*this};
 		}
 
 	private:
@@ -62,15 +65,15 @@ namespace Treadle2
 	struct FlagSetter
 	{
 		FlagSetter() = default;
-		FlagSetter(FlagSetter&) = default;
-		FlagSetter(FlagSetter&& other) 
-			:bDependencyCompleteFlag(other.bDependencyCompleteFlag)
+		FlagSetter(FlagSetter &) = default;
+		FlagSetter(FlagSetter &&other)
+			: bDependencyCompleteFlag(other.bDependencyCompleteFlag)
 		{
 		}
 
 		bool GetFlag() const noexcept { return bDependencyCompleteFlag; }
 
-		Task<void> WaitAndSet(Task<void>& wait)
+		Task<void> WaitAndSet(Task<void> &wait)
 		{
 			co_await wait;
 

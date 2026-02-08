@@ -4,18 +4,24 @@
 
 namespace Treadle2
 {
+		void DoNothing() {}
 
-	void DoNothing() {}
-	
-	//Wait synchronously for a set of async operations to complete
-	template<IsPollable... AsyncOperationTypes>
-	void SyncWait(AsyncOperationTypes&... tasks) noexcept
+		Task<void> MakeTask()
+		{
+			co_return;
+		}
+	}
+
+	// Wait synchronously for a set of async operations to complete
+	template <IsPollable... AsyncOperationTypes>
+	void SyncWait(AsyncOperationTypes &...tasks) noexcept
 	{
 		bool done = false;
-		while (!done) {
+		while (!done)
+		{
 			done = true;
-			//Resume all tasks
-			((!tasks.Done()? tasks.Resume() : DoNothing(), done &= tasks.Done()), ...);
+			// Resume all tasks
+			((!tasks.Done() ? tasks.Resume() : Detail::DoNothing(), done &= tasks.Done()), ...);
 		}
 	}
 

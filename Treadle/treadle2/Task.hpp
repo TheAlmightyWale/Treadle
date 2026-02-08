@@ -7,34 +7,50 @@
 
 namespace Treadle2
 {
-	template<typename ReturnType>
+	template <typename ReturnType>
 	struct Task;
 
 	struct PromiseBase
 	{
-		struct FinalAwaitable
+		struct ResumeAwaitable
 		{
 		public:
-			bool await_ready() const noexcept {
+			ResumeAwaitable(std::coroutine_handle<> continuation)
+				: continuation_(continuation)
+			{
+			}
+
+			// always suspend
+			bool await_ready() const noexcept
+			{
 				return false;
 			}
 
-			template<typename PromiseType>
-			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h)  noexcept {
-				return h.promise().continuation_;
+			template <typename PromiseType>
+			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h) noexcept
+			{
+				return continuation_;
 			}
 
 			void await_resume() const noexcept {}
 
 		private:
+			std::coroutine_handle<> continuation_;
 		};
 
-		std::suspend_always initial_suspend() const noexcept {
+		std::suspend_always initial_suspend() const noexcept
+		{
 			return {};
 		}
 
-		FinalAwaitable final_suspend() const noexcept {
-			return {};
+		ResumeAwaitable final_suspend() const noexcept
+		{
+			if (dependantCounter && dependantCounter->fetch_sub(1, std::memory_order_acq_rel) == 1)
+			{
+				return {continuation_};
+			}
+
+			return ResumeAwaitable(std::noop_coroutine());
 		}
 
 		void set_continuation(std::coroutine_handle<> coro)
@@ -42,33 +58,44 @@ namespace Treadle2
 			continuation_ = coro;
 		}
 
+		void set_counter(std::atomic<unsigned int> *counter)
+		{
+			dependantCounter = counter;
+		}
+
 	private:
+		std::atomic<unsigned int> *dependantCounter = nullptr;
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
-	//TODO Policy type these? We only want custom behavior for
-	// final suspend classes
-	//Along with this we will want to also hide implementation classes
+	// TODO Policy type these? We only want custom behavior for
+	//  final suspend classes
+	// Along with this we will want to also hide implementation classes
 
-	template<typename ReturnType>
-	struct Promise : PromiseBase {
+	template <typename ReturnType>
+	struct Promise : PromiseBase
+	{
 
 		Task<ReturnType> get_return_object() noexcept;
 
-		void unhandled_exception() const noexcept {
+		void unhandled_exception() const noexcept
+		{
 			std::terminate();
 		}
 
 		[[nodiscard]]
-		ReturnType&& result() {
+		ReturnType &&result()
+		{
 			return std::move(result_);
 		}
 
-		void return_value(ReturnType&& value) {
+		void return_value(ReturnType &&value)
+		{
 			result_ = value;
 		}
 
-		void return_value(ReturnType& value) {
+		void return_value(ReturnType &value)
+		{
 			result_ = value;
 		}
 
@@ -76,12 +103,14 @@ namespace Treadle2
 		ReturnType result_;
 	};
 
-	template<>
-	struct Promise<void> : PromiseBase {
+	template <>
+	struct Promise<void> : PromiseBase
+	{
 
 		Task<void> get_return_object() noexcept;
 
-		void unhandled_exception() const noexcept {
+		void unhandled_exception() const noexcept
+		{
 			std::terminate();
 		}
 
@@ -98,33 +127,61 @@ namespace Treadle2
 	public:
 		using promise_type = Promise<ReturnType>;
 
-		Task(Task const&) = delete;
-		Task& operator=(Task const&) = delete;
+		Task(Task const &) = delete;
+		Task &operator=(Task const &) = delete;
 
-		Task(Task&& t) noexcept
+		Task(Task &&t) noexcept
 			: coro_(std::exchange(t.coro_, {}))
-		{}
+		{
+		}
 
-		Task& operator=(Task&& t) noexcept {
+		Task &operator=(Task &&t) noexcept
+		{
 			Swap(t);
 			return *this;
 		}
 
 		explicit Task(std::coroutine_handle<promise_type> coro) noexcept
 			: coro_(coro)
-		{}
+		{
+		}
 
-		~Task() {
-			if (coro_) coro_.destroy();
+		~Task()
+		{
+			if (coro_)
+				coro_.destroy();
 		}
 
 		void Resume() { coro_.resume(); }
 		bool Done() { return coro_.done(); }
-		ReturnType Value() {
+
+		void InitializeCounter(uint32_t dependantCount)
+		{
+			dependantCount_ = dependantCount;
+		}
+
+		void SetCounter(std::atomic<uint32_t> *counter)
+		{
+			coro_.promise().set_counter(counter);
+		}
+
+		void SetContinuation(std::coroutine_handle<> continuation)
+		{
+			coro_.promise().set_continuation(continuation);
+		}
+
+		std::atomic<uint32_t> *GetCounter()
+		{
+			return &dependantCount_;
+		}
+
+		ReturnType Value()
+		{
 			return coro_.promise().result();
 		}
 
-		void Swap(Task& other) noexcept {
+		void Swap(Task &other) noexcept
+		{
 			std::swap(coro_, other.coro_);
 		}
 
@@ -135,7 +192,8 @@ namespace Treadle2
 			{
 			}
 
-			bool await_ready() const noexcept {
+			bool await_ready() const noexcept
+			{
 				return false;
 			}
 
@@ -149,8 +207,7 @@ namespace Treadle2
 			std::coroutine_handle<promise_type> coro_;
 		};
 
-
-		//R-Value Task
+		// R-Value Task
 		auto operator co_await() const && noexcept
 		{
 			struct Awaiter : AwaitableBase
@@ -161,12 +218,11 @@ namespace Treadle2
 				}
 			};
 
-			return Awaiter{ coro_ };
+			return Awaiter{coro_};
 		}
 
-
-		//L-value Task
-		auto operator co_await() const& noexcept
+		// L-value Task
+		auto operator co_await() const & noexcept
 		{
 			struct Awaiter : AwaitableBase
 			{
@@ -180,16 +236,19 @@ namespace Treadle2
 		}
 
 	private:
+		std::atomic<uint32_t> dependantCount_;
 		std::coroutine_handle<promise_type> coro_;
-
 	};
 
-	template<typename ReturnType>
-	Task<ReturnType> Promise<ReturnType>::get_return_object() noexcept {
-		return Task{ std::coroutine_handle<Promise>::from_promise(*this) };
+	template <typename ReturnType>
+	Task<ReturnType> Promise<ReturnType>::get_return_object() noexcept
+	{
+		return Task{std::coroutine_handle<Promise>::from_promise(*this)};
 	}
 
-	inline Task<void> Promise<void>::get_return_object() noexcept {
-		return Task{ std::coroutine_handle<Promise>::from_promise(*this) };
+	inline Task<void> Promise<void>::get_return_object() noexcept
+	{
+		return Task{std::coroutine_handle<Promise>::from_promise(*this)};
 	}
+
 }

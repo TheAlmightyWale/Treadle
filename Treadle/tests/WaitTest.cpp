@@ -5,7 +5,7 @@
 
 namespace Treadle2
 {
-	//create coroutine type which will await a certain number of times before continuing
+	// create coroutine type which will await a certain number of times before continuing
 	struct Countdown
 	{
 		using promise_type = TestPromise;
@@ -17,12 +17,13 @@ namespace Treadle2
 			class awaiter
 			{
 			public:
-				awaiter(Countdown& cd) noexcept
+				awaiter(Countdown &cd) noexcept
 					: countdown_(cd)
 				{
 				}
 
-				bool await_ready() const noexcept {
+				bool await_ready() const noexcept
+				{
 					return countdown_.isReady();
 				}
 
@@ -37,10 +38,10 @@ namespace Treadle2
 				void await_resume() noexcept {}
 
 			private:
-				Countdown& countdown_;
+				Countdown &countdown_;
 			};
 
-			return awaiter{ *this };
+			return awaiter{*this};
 		}
 
 	private:
@@ -48,15 +49,15 @@ namespace Treadle2
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
-	Task<void> WaitOnCountdown(Countdown& cd) noexcept {
+	Task<void> WaitOnCountdown(Countdown &cd) noexcept
+	{
 		while (!cd.isReady())
 		{
 			co_await cd;
 		}
 	}
 
-
-	TEST(SyncWaitTests, WaitOne) 
+	TEST(SyncWaitTests, WaitOne)
 	{
 		Countdown countdown;
 		Task<void> task = WaitOnCountdown(countdown);
@@ -67,7 +68,7 @@ namespace Treadle2
 		EXPECT_TRUE(task.Done());
 	}
 
-	TEST(SyncWaitTests, WaitMany) 
+	TEST(SyncWaitTests, WaitMany)
 	{
 		Countdown countdown;
 		Task<void> task1 = WaitOnCountdown(countdown);
@@ -81,11 +82,11 @@ namespace Treadle2
 		EXPECT_TRUE(task2.Done());
 	}
 
-	TEST(AsyncWaitTests, AsyncWaitOne) {
-
+	TEST(AsyncWaitTests, AsyncWaitOne)
+	{
 	}
 
-	TEST(AsyncWaitTests, AsyncWaitMany) {
-
+	TEST(AsyncWaitTests, AsyncWaitMany)
+	{
 	}
 }
