@@ -4,8 +4,9 @@
 
 #include <vector>
 
-namespace Treadle2
+namespace TreadleTest
 {
+	using namespace Treadle;
 
 	Task<void> DoThing()
 	{
@@ -73,7 +74,7 @@ namespace Treadle2
 		dependedTask.SetCounter(task.GetCounter());
 		task.Resume();
 		EXPECT_FALSE(setter.GetFlag());
-		
+
 		// depended Task should finish and then immediately continue task and set it's flag
 		dependedTask.Resume();
 		// assert that variable was set to true

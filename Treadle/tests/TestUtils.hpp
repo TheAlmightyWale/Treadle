@@ -1,10 +1,12 @@
 #pragma once
 
 #include <coroutine>
-#include <Task.hpp>
+#include "Task.hpp"
 
-namespace Treadle2
+namespace TreadleTest
 {
+	using namespace Treadle;
+
 	struct TestPromise
 	{
 		std::suspend_always initial_suspend() const noexcept

@@ -4,9 +4,15 @@
 #include <exception>
 #include <utility>
 #include "TaskTraits.hpp"
+#include "AtomicCounter.h"
 
-namespace Treadle2
+namespace Treadle
 {
+	namespace Detail
+	{
+		static uint32_t tid = -1;
+	}
+
 	template <typename ReturnType>
 	struct Task;
 
@@ -58,13 +64,13 @@ namespace Treadle2
 			continuation_ = coro;
 		}
 
-		void set_counter(std::atomic<unsigned int> *counter)
+		void set_counter(Counter_t *counter)
 		{
 			dependantCounter = counter;
 		}
 
 	private:
-		std::atomic<unsigned int> *dependantCounter = nullptr;
+		Counter_t *dependantCounter = nullptr;
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
 	};
 
@@ -240,8 +246,10 @@ namespace Treadle2
 			return Awaiter{coro_};
 		}
 
+		uint32_t const m_id = Detail::tid++;
+
 	private:
-		std::atomic<uint32_t> dependantCount_;
+		Counter_t dependantCount_;
 		std::coroutine_handle<promise_type> coro_;
 	};
 

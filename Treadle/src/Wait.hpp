@@ -2,7 +2,7 @@
 #include "TaskTraits.hpp"
 #include "Task.hpp"
 
-namespace Treadle2
+namespace Treadle
 {
 	namespace Detail
 	{

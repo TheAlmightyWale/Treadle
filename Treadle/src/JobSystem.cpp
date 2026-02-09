@@ -4,20 +4,25 @@
 #include <string>
 #include "ThreadUtils.h"
 #include "MpmcQueue.hpp"
-#include "Task.h"
+#include "Task.hpp"
 
-namespace {
-	void Work(std::stop_token stop, Treadle::MpmcQueue<Treadle::JobSystem::TaskIdType>& workQueue,  Treadle::JobSystem::MemoryType& memory) {
-		//pull from queue or spin waiting for something to be added to it
-		while (!stop.stop_requested()) {
+namespace
+{
+	void Work(std::stop_token stop, Treadle::MpmcQueue<Treadle::JobSystem::TaskIdType> &workQueue, Treadle::JobSystem::MemoryType &memory)
+	{
+		// pull from queue or spin waiting for something to be added to it
+		while (!stop.stop_requested())
+		{
 			auto oTask = workQueue.try_pop();
-			if (oTask) {
-				auto& task = memory.at(*oTask);
+			if (oTask)
+			{
+				auto &task = memory.at(*oTask);
 				// right now we just resume once and assume task runs to completion
 				// in future we will have multiple queues, where we add tasks that are ready to be resumed onto the highest priority one
 				task.Resume();
-				
-				if (task.Done()) {
+
+				if (task.Done())
+				{
 					memory.erase(task.m_id);
 				}
 			}
@@ -35,22 +40,25 @@ namespace Treadle
 
 	void JobSystem::Start() noexcept
 	{
-		for (uint32_t i = 0; i < m_numThreads; ++i) {
+		for (uint32_t i = 0; i < m_numThreads; ++i)
+		{
 			m_threads.emplace_back(CreateAndStartThread(i, "Worker Thread-" + std::to_string(i), Work, m_queue, m_memory));
 		}
 	}
 
 	void JobSystem::JoinAll() noexcept
 	{
-		for (auto& pThread : m_threads) {
-			if (pThread->joinable()) {
+		for (auto &pThread : m_threads)
+		{
+			if (pThread->joinable())
+			{
 				pThread->get_stop_source().request_stop();
 				pThread->join();
 			}
 		}
 	}
 
-	void JobSystem::AddJob(TaskType&& task) noexcept
+	void JobSystem::AddJob(TaskType &&task) noexcept
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		auto [it, bNewAdded] = m_memory.emplace(task.m_id, std::forward<TaskType>(task));
@@ -63,7 +71,7 @@ namespace Treadle
 		m_memory.erase(id);
 	}
 
-	MpmcQueue<JobSystem::TaskIdType> const& JobSystem::GetQueue()
+	MpmcQueue<JobSystem::TaskIdType> const &JobSystem::GetQueue()
 	{
 		return m_queue;
 	}
@@ -73,7 +81,3 @@ namespace Treadle
 		JoinAll();
 	}
 }
-
-
-
-

@@ -10,8 +10,8 @@ function(fetch_gtest)
 	include(FetchContent)
 	FetchContent_Declare(
 		googletest
-		URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
-		DOWNLOAD_EXTRACT_TIMESTAMP true
+		GIT_REPOSITORY https://github.com/google/googletest.git
+  		GIT_TAG v1.17.0 
 	)
 
 	# For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -29,7 +29,6 @@ project ("Treadle" VERSION 0.1 DESCRIPTION "C++20 cooperative threading job syst
 
 # Add source to this project's executable.
 add_subdirectory("src/")
-add_subdirectory("treadle2/")
 
 if (BUILD_RUN_TESTS)
 	fetch_gtest()

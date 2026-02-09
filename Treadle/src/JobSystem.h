@@ -3,30 +3,31 @@
 #include <cstdint>
 #include <unordered_map>
 #include "MpmcQueue.hpp"
-#include "Task.h"
+#include "Task.hpp"
 #include "ThreadSafeMap.hpp"
 
 namespace Treadle
 {
-	class JobSystem {
+	class JobSystem
+	{
 	public:
-		using TaskType = Task<LoggedPromise>;
+		using TaskType = Task<void>;
 		using TaskIdType = int;
 		using MemoryType = ThreadSafeMap<TaskIdType, TaskType>;
 
-		//can initialize with a number of threads
+		// can initialize with a number of threads
 		JobSystem(uint32_t numThreads);
 
-		//delayed start to allow for testing and bench marking
+		// delayed start to allow for testing and bench marking
 		void Start() noexcept;
 		void JoinAll() noexcept;
 
-		void AddJob(TaskType&& task) noexcept;
+		void AddJob(TaskType &&task) noexcept;
 		void EraseJob(TaskIdType id) noexcept;
 
-		MpmcQueue<TaskIdType> const& GetQueue();
+		MpmcQueue<TaskIdType> const &GetQueue();
 
-		//on destruct join threads
+		// on destruct join threads
 		~JobSystem() noexcept;
 
 	private:
@@ -38,4 +39,3 @@ namespace Treadle
 		mutable std::mutex m_mutex;
 	};
 }
-
