@@ -1,10 +1,10 @@
 ﻿# CMakeList.txt : CMake project for Treadle, include source and define
 # project specific logic here.
 #
-cmake_minimum_required (VERSION 3.20)
+cmake_minimum_required (VERSION 3.25)
 
-option(BUILD_RUN_TESTS "Build and run tests" TRUE)
-option(BUILD_RUN_BENCHMARKS "Build and run benchmarks" TRUE)
+option(TREADLE_BUILD_RUN_TESTS "Build and run Treadle tests" TRUE)
+option(TREADLE_BUILD_RUN_BENCHMARKS "Build and run Treadle benchmarks" TRUE)
 
 function(fetch_gtest)
 	include(FetchContent)
@@ -31,13 +31,13 @@ project ("Treadle" VERSION 0.1 DESCRIPTION "C++20 cooperative threading job syst
 set(TREADLE_LIBRARY_NAME "Treadle")
 add_subdirectory("src/")
 
-if (BUILD_RUN_TESTS)
+if (TREADLE_BUILD_RUN_TESTS)
 	fetch_gtest()
 	enable_testing()
     add_subdirectory(tests)
 endif()
 
-if(BUILD_RUN_BENCHMARKS)
+if(TREADLE_BUILD_RUN_BENCHMARKS)
 	fetch_gtest()
 	enable_testing()
 	add_subdirectory(benchmarks)
