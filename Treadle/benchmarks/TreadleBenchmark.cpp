@@ -10,7 +10,6 @@ namespace {
     bool IsPrime(uint64_t number)
     {
         //Purposely inefficient prime finding algorithm
-        uint64_t temp = 0;
         for (uint64_t i = 2; i < number - 1; ++i)
         {
             if (number % i == 0)

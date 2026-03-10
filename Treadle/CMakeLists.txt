@@ -28,7 +28,7 @@ endif()
 project ("Treadle" VERSION 0.1 DESCRIPTION "C++20 cooperative threading job system" LANGUAGES CXX)
 
 # Add source to this project's executable.
-set(LIBRARY_NAME "Treadle")
+set(TREADLE_LIBRARY_NAME "Treadle")
 add_subdirectory("src/")
 
 if (BUILD_RUN_TESTS)

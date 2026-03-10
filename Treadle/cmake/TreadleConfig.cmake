@@ -1,1 +1,1 @@
-include(${CMAKE_CURRENT_LIST_DIR}/${LIBRARY_NAME}_targets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/${TREADLE_LIBRARY_NAME}_targets.cmake)
