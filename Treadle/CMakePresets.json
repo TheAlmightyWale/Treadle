@@ -2,8 +2,14 @@
     "version": 6,
     "configurePresets": [
         {
+            "name": "common-base",
+            "hidden": true,
+            "cacheVariables": {}
+        },
+        {
             "name": "windows-base",
             "hidden": true,
+            "inherits": "common-base",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/out/install/${presetName}",
@@ -43,6 +49,7 @@
         {
             "name": "clang-debug",
             "displayName": "Clang Debug",
+            "inherits": "common-base",
             "description": "Uses the Ninja generator with Clang compilers for a debug build.",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/clang-debug",

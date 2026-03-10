@@ -1,0 +1,1 @@
+include(${CMAKE_CURRENT_LIST_DIR}/${LIBRARY_NAME}_targets.cmake)
