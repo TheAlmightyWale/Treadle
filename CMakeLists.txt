@@ -42,3 +42,28 @@ if(TREADLE_BUILD_RUN_BENCHMARKS)
 	enable_testing()
 	add_subdirectory(benchmarks)
 endif()
+
+install(TARGETS ${TREADLE_LIBRARY_NAME}
+		EXPORT treadle-targets
+		FILE_SET HEADERS
+)
+
+include(GNUInstallDirs)
+
+install(EXPORT treadle-targets
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${TREADLE_LIBRARY_NAME}
+		NAMESPACE Treadle::
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/TreadleConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Treadle
+)
+
+install(FILES
+          "${CMAKE_CURRENT_BINARY_DIR}/TreadleConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/TreadleConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Treadle
+)
