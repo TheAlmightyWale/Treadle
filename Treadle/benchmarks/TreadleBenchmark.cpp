@@ -2,7 +2,7 @@
 #include <nanobench.h>
 
 #include "../src/JobSystem.h"
-#include "../src/Task.h"
+#include "../src/Task.hpp"
 #include "../src/MpmcQueue.hpp"
 
 namespace {
@@ -70,7 +70,7 @@ namespace Bench = ankerl::nanobench;
 
 
 constexpr uint32_t k_numTasks = 100;
-Treadle::Task<Treadle::LoggedPromise> CreateSmallPrimeTask() {
+Treadle::Task<void> CreateSmallPrimeTask() {
     Bench::doNotOptimizeAway(SmallPrime());
     co_return;
 }
@@ -82,7 +82,8 @@ TEST(TreadleBenchmark, SmallPrimeCalculations) {
 
         //add jobs
         for (uint32_t i = 0; i < k_numTasks; ++i) {
-            js.AddJob(CreateSmallPrimeTask());
+            Treadle::Job job(CreateSmallPrimeTask());
+            js.AddJob(std::move(job));
         }
 
         js.Start();

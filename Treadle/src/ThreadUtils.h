@@ -26,7 +26,7 @@ namespace Treadle
 	}
 
 	template <typename FunctionType, typename... ArgTypes>
-	inline auto CreateAndStartThread(int coreId, std::string const &name, FunctionType &&func, ArgTypes &&...args) noexcept -> std::jthread *
+	inline auto CreateAndStartThread(int coreId, std::string const& /*name*/, FunctionType &&func, ArgTypes &&...args) noexcept -> std::jthread *
 	{
 		auto threadBody = [&](std::stop_token stopToken)
 		{

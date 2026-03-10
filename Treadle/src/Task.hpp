@@ -6,11 +6,13 @@
 #include "TaskTraits.hpp"
 #include "AtomicCounter.h"
 
+#include<iostream>
+
 namespace Treadle
 {
 	namespace Detail
 	{
-		static uint32_t tid = -1;
+		static uint32_t tid = 0;
 	}
 
 	template <typename ReturnType>
@@ -33,7 +35,7 @@ namespace Treadle
 			}
 
 			template <typename PromiseType>
-			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType> h) noexcept
+			std::coroutine_handle<> await_suspend(std::coroutine_handle<PromiseType>) noexcept
 			{
 				return continuation_;
 			}
@@ -154,8 +156,10 @@ namespace Treadle
 
 		~Task()
 		{
-			if (coro_)
+			if (coro_) {
 				coro_.destroy();
+			}
+				
 		}
 
 		void Resume() { coro_.resume(); }
@@ -181,7 +185,7 @@ namespace Treadle
 			return &dependantCount_;
 		}
 
-		std::coroutine_handle<> GetCoroutine()
+		std::coroutine_handle<> GetCoroutine() const
 		{
 			return coro_;
 		}
@@ -239,7 +243,7 @@ namespace Treadle
 			{
 				decltype(auto) await_resume() const noexcept
 				{
-					return std::move(coro_.promise()).result();
+					return std::move(this->coro_.promise()).result();
 				}
 			};
 
@@ -252,6 +256,9 @@ namespace Treadle
 		Counter_t dependantCount_;
 		std::coroutine_handle<promise_type> coro_;
 	};
+
+	//template<>
+	//struct Task{};
 
 	template <typename ReturnType>
 	Task<ReturnType> Promise<ReturnType>::get_return_object() noexcept

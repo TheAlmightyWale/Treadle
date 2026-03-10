@@ -8,7 +8,7 @@
 
 namespace
 {
-	void Work(std::stop_token stop, Treadle::MpmcQueue<Treadle::JobSystem::TaskIdType> &workQueue, Treadle::JobSystem::MemoryType &memory)
+	void Work(std::stop_token stop, Treadle::MpmcQueue<Treadle::Job> &workQueue)
 	{
 		// pull from queue or spin waiting for something to be added to it
 		while (!stop.stop_requested())
@@ -16,15 +16,9 @@ namespace
 			auto oTask = workQueue.try_pop();
 			if (oTask)
 			{
-				auto &task = memory.at(*oTask);
-				// right now we just resume once and assume task runs to completion
-				// in future we will have multiple queues, where we add tasks that are ready to be resumed onto the highest priority one
-				task.Resume();
-
-				if (task.Done())
-				{
-					memory.erase(task.m_id);
-				}
+				auto& task = *oTask;
+				// right now we just start once and assume task runs to completion
+				task.Start();
 			}
 		}
 	}
@@ -42,7 +36,7 @@ namespace Treadle
 	{
 		for (uint32_t i = 0; i < m_numThreads; ++i)
 		{
-			m_threads.emplace_back(CreateAndStartThread(i, "Worker Thread-" + std::to_string(i), Work, m_queue, m_memory));
+			m_threads.emplace_back(CreateAndStartThread(i, "Worker Thread-" + std::to_string(i), Work, m_queue));
 		}
 	}
 
@@ -58,20 +52,12 @@ namespace Treadle
 		}
 	}
 
-	void JobSystem::AddJob(TaskType &&task) noexcept
+	void JobSystem::AddJob(Job&& task) noexcept
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		auto [it, bNewAdded] = m_memory.emplace(task.m_id, std::forward<TaskType>(task));
-		m_queue.push(it->first);
+		m_queue.push(std::move(task));
 	}
 
-	void JobSystem::EraseJob(TaskIdType id) noexcept
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		m_memory.erase(id);
-	}
-
-	MpmcQueue<JobSystem::TaskIdType> const &JobSystem::GetQueue()
+	MpmcQueue<Job> const& JobSystem::GetQueue()
 	{
 		return m_queue;
 	}

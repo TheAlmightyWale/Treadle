@@ -20,7 +20,7 @@ function(fetch_gtest)
 endfunction()
 
 # Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
+if (MSVC AND POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
@@ -28,6 +28,7 @@ endif()
 project ("Treadle" VERSION 0.1 DESCRIPTION "C++20 cooperative threading job system" LANGUAGES CXX)
 
 # Add source to this project's executable.
+set(LIBRARY_NAME "Treadle")
 add_subdirectory("src/")
 
 if (BUILD_RUN_TESTS)

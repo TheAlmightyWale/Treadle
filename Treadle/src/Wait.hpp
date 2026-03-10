@@ -1,19 +1,10 @@
 #pragma once
 #include "TaskTraits.hpp"
 #include "Task.hpp"
+#include "WaitUtils.h"
 
 namespace Treadle
 {
-	namespace Detail
-	{
-		void DoNothing() {}
-
-		Task<void> MakeTask()
-		{
-			co_return;
-		}
-	}
-
 	// Wait synchronously for a set of async operations to complete
 	template <IsPollable... AsyncOperationTypes>
 	void SyncWait(AsyncOperationTypes &...tasks) noexcept
@@ -39,8 +30,6 @@ namespace Treadle
 		// for each task, set counter and continuation
 		(tasks.SetContinuation(t.GetCoroutine()), ...);
 		(tasks.SetCounter(t.GetCounter()), ...);
-
-		// schedule tasks
 
 		return t;
 	}

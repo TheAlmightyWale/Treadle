@@ -1,5 +1,5 @@
 ﻿{
-    "version": 3,
+    "version": 6,
     "configurePresets": [
         {
             "name": "windows-base",
@@ -26,7 +26,10 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_INIT": "/W4 /WX",
+                "CMAKE_EXE_LINKER_FLAGS": "/PROFILE",
+                "CMAKE_SHARED_LINKER_FLAGS": "/PROFILE"
             }
         },
         {
@@ -38,24 +41,42 @@
             }
         },
         {
-            "name": "linux-debug",
-            "displayName": "Linux Debug",
+            "name": "clang-debug",
+            "displayName": "Clang Debug",
+            "description": "Uses the Ninja generator with Clang compilers for a debug build.",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "installDir": "${sourceDir}/out/install/${presetName}",
+            "binaryDir": "${sourceDir}/out/clang-debug",
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang.exe",
+                "CMAKE_CXX_COMPILER": "clang++.exe",
                 "CMAKE_BUILD_TYPE": "Debug"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Linux"
-            },
-            "vendor": {
-                "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
-                    "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
-                }
             }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x64-debug-build",
+            "displayName": "X64 Debug",
+            "configurePreset": "x64-debug"
+        },
+        {
+            "name": "x64-release-build",
+            "displayName": "X64 Release",
+            "configurePreset": "x64-release"
+        },
+        {
+            "name": "clang-debug-build",
+            "displayName": "Clang Debug",
+            "configurePreset": "clang-debug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test-clang",
+            "displayName": "Test Clang Debug Build",
+            "configurePreset": "clang-debug",
+            "output": {"outputOnFailure": true},
+            "execution": {"noTestsAction": "error"}
         }
     ]
 }

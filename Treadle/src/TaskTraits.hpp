@@ -1,5 +1,6 @@
 #pragma once
 #include <concepts>
+#include <coroutine>
 
 template <typename T>
 concept IsPollable = requires(T obj) {

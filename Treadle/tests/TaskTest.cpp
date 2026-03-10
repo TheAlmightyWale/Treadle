@@ -85,16 +85,4 @@ namespace TreadleTest
 	//
 	// }
 
-	// TEST(JobSchedulerTests, InsertedTaskAddsDependency) {
-
-	//}
-
-	// TEST(JobSchedulerTests, ProcessTasksInDesiredOrder) {
-
-	//}
-
-	// TEST(JobSchedulerTests, InterruptsLongRunningTasks) {
-
-	//}
-
 }

@@ -11,6 +11,6 @@ FetchContent_MakeAvailable(nanobench)
 
 add_executable (Benchmarks "TreadleBenchmark.cpp")
 set_target_properties(Benchmarks PROPERTIES CXX_STANDARD 20 LINKER_LANGUAGE CXX)
-target_link_libraries(Benchmarks PRIVATE nanobench gtest_main Treadle)
+target_link_libraries(Benchmarks PRIVATE nanobench gtest_main PUBLIC ${LIBRARY_NAME})
 
 gtest_discover_tests(Benchmarks)
