@@ -1,7 +1,7 @@
 #pragma once
 #include "TaskTraits.hpp"
 #include "Task.hpp"
-#include "WaitUtils.h"
+#include "include/Treadle/private/WaitUtils.h"
 
 namespace Treadle
 {

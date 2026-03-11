@@ -1,10 +1,10 @@
-#include "JobSystem.h"
+#include "Treadle/public/JobSystem.h"
 #include <cstdint>
 #include <unordered_map>
 #include <string>
-#include "ThreadUtils.h"
-#include "MpmcQueue.hpp"
-#include "Task.hpp"
+#include "Treadle/public/ThreadUtils.h"
+#include "Treadle/public/MpmcQueue.hpp"
+#include "Treadle/public/Task.hpp"
 
 namespace
 {

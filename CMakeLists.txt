@@ -3,8 +3,8 @@
 #
 cmake_minimum_required (VERSION 3.25)
 
-option(TREADLE_BUILD_RUN_TESTS "Build and run Treadle tests" TRUE)
-option(TREADLE_BUILD_RUN_BENCHMARKS "Build and run Treadle benchmarks" TRUE)
+option(TREADLE_BUILD_RUN_TESTS "Build and run Treadle tests" FALSE)
+option(TREADLE_BUILD_RUN_BENCHMARKS "Build and run Treadle benchmarks" FALSE)
 
 function(fetch_gtest)
 	include(FetchContent)
@@ -46,6 +46,7 @@ endif()
 install(TARGETS ${TREADLE_LIBRARY_NAME}
 		EXPORT treadle-targets
 		FILE_SET HEADERS
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${TREADLE_LIBRARY_NAME}
 )
 
 include(GNUInstallDirs)
@@ -60,6 +61,11 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/TreadleConfig.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Treadle
+)
+
+write_basic_package_version_file(
+	"${CMAKE_CURRENT_BINARY_DIR}/TreadleConfigVersion.cmake"
+	COMPATIBILITY ExactVersion
 )
 
 install(FILES

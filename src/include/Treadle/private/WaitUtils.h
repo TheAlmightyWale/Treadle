@@ -1,5 +1,5 @@
 #pragma once
-#include "Task.hpp"
+#include "Treadle/public/Task.hpp"
 
 namespace Treadle
 {
