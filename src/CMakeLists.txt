@@ -1,7 +1,7 @@
 add_library(${TREADLE_LIBRARY_NAME})
 target_sources(${TREADLE_LIBRARY_NAME}
 	PRIVATE 
-		"include/Treadle/private/WaitUtils.h" "WaitUtils.cpp" "JobSystem.cpp"
+		"WaitUtils.cpp" "JobSystem.cpp"
  	PUBLIC
 		FILE_SET HEADERS
 		BASE_DIRS "include"

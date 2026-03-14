@@ -1,4 +1,4 @@
-#include "include/Treadle/private/WaitUtils.h"
+#include "Treadle/public/WaitUtils.h"
 #include <coroutine>
 
 namespace Treadle

@@ -13,12 +13,12 @@ namespace
 		// pull from queue or spin waiting for something to be added to it
 		while (!stop.stop_requested())
 		{
-			auto oTask = workQueue.try_pop();
-			if (oTask)
+			auto oCoro = workQueue.try_pop();
+			if (oCoro)
 			{
-				auto& task = *oTask;
+				auto& coro = *oCoro;
 				// right now we just start once and assume task runs to completion
-				task.Start();
+				coro.resume();
 			}
 		}
 	}
@@ -52,9 +52,9 @@ namespace Treadle
 		}
 	}
 
-	void JobSystem::AddJob(Job&& task) noexcept
+	void JobSystem::AddJob(Job const& job) noexcept
 	{
-		m_queue.push(std::move(task));
+		m_queue.push(job);
 	}
 
 	MpmcQueue<Job> const& JobSystem::GetQueue()

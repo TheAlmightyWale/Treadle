@@ -5,8 +5,11 @@
 #include <utility>
 #include "TaskTraits.hpp"
 #include "AtomicCounter.h"
+#include "IScheduler.h"
+#include "job.h"
 
-#include<iostream>
+//temp
+#include <iostream>
 
 namespace Treadle
 {
@@ -25,8 +28,7 @@ namespace Treadle
 		public:
 			ResumeAwaitable(std::coroutine_handle<> continuation)
 				: continuation_(continuation)
-			{
-			}
+			{}
 
 			// always suspend
 			bool await_ready() const noexcept
@@ -71,9 +73,21 @@ namespace Treadle
 			dependantCounter = counter;
 		}
 
+		void init_dependee_counter(uint32_t dependants){
+			dependeeCounter = dependants;
+		}
+
+		Counter_t& get_counter()
+		{
+			return dependeeCounter;
+		}
+
 	private:
-		Counter_t *dependantCounter = nullptr;
+		//Counter to decrement when this task completes, potentially running it's continuation if it hits 0
+		Counter_t* dependantCounter = nullptr;
 		std::coroutine_handle<> continuation_ = std::noop_coroutine();
+		//Counter that tasks this task depends on can decrement to know when to continue them
+		Counter_t dependeeCounter = 0;
 	};
 
 	// TODO Policy type these? We only want custom behavior for
@@ -83,7 +97,6 @@ namespace Treadle
 	template <typename ReturnType>
 	struct Promise : PromiseBase
 	{
-
 		Task<ReturnType> get_return_object() noexcept;
 
 		void unhandled_exception() const noexcept
@@ -139,8 +152,8 @@ namespace Treadle
 		Task &operator=(Task const &) = delete;
 
 		Task(Task &&t) noexcept
-			: coro_(std::exchange(t.coro_, {}))
 		{
+			Swap(t);
 		}
 
 		Task &operator=(Task &&t) noexcept
@@ -151,8 +164,7 @@ namespace Treadle
 
 		explicit Task(std::coroutine_handle<promise_type> coro) noexcept
 			: coro_(coro)
-		{
-		}
+		{}
 
 		~Task()
 		{
@@ -167,10 +179,10 @@ namespace Treadle
 
 		void InitializeCounter(uint32_t dependantCount)
 		{
-			dependantCount_ = dependantCount;
+			coro_.promise().init_dependee_counter(dependantCount);
 		}
 
-		void SetCounter(std::atomic<uint32_t> *counter)
+		void SetCounter(Counter_t* counter)
 		{
 			coro_.promise().set_counter(counter);
 		}
@@ -180,9 +192,9 @@ namespace Treadle
 			coro_.promise().set_continuation(continuation);
 		}
 
-		std::atomic<uint32_t> *GetCounter()
+		Counter_t& GetCounter()
 		{
-			return &dependantCount_;
+			return coro_.promise().get_counter();
 		}
 
 		std::coroutine_handle<> GetCoroutine() const
@@ -204,18 +216,21 @@ namespace Treadle
 		{
 			AwaitableBase(std::coroutine_handle<promise_type> coro)
 				: coro_(coro)
-			{
-			}
+			{}
 
 			bool await_ready() const noexcept
 			{
 				return false;
 			}
 
-			std::coroutine_handle<> await_suspend(std::coroutine_handle<> h)
+			void await_suspend(std::coroutine_handle<promise_type> h)
 			{
+				//Set up new dependency we have awaited
+				Counter_t& dependantCounter = h.promise().get_counter();
+				dependantCounter += 1;
 				coro_.promise().set_continuation(h);
-				return coro_;
+				coro_.promise().set_counter(&dependantCounter);
+				IScheduler::Get().Schedule(coro_);
 			}
 
 		protected:
@@ -253,12 +268,8 @@ namespace Treadle
 		uint32_t const m_id = Detail::tid++;
 
 	private:
-		Counter_t dependantCount_;
 		std::coroutine_handle<promise_type> coro_;
 	};
-
-	//template<>
-	//struct Task{};
 
 	template <typename ReturnType>
 	Task<ReturnType> Promise<ReturnType>::get_return_object() noexcept

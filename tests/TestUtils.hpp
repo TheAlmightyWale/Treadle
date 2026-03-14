@@ -1,7 +1,10 @@
 #pragma once
-
 #include <coroutine>
-#include "Task.hpp"
+#include <queue>
+#include <gtest/gtest.h>
+#include "Treadle/public/Task.hpp"
+#include "Treadle/public/IScheduler.h"
+#include "Treadle/public/Job.h"
 
 namespace TreadleTest
 {
@@ -40,14 +43,14 @@ namespace TreadleTest
 
 				bool await_ready() const noexcept
 				{
+					std::cout << "event await ready " << event_.isSet() << std::endl;
 					return event_.isSet();
 				}
 
-				bool await_suspend(std::coroutine_handle<> coro)
+				void await_suspend(std::coroutine_handle<> coro)
 				{
+					std::cout << "event suspend" << std::endl;
 					event_.continuation_ = coro;
-
-					return true;
 				}
 
 				void await_resume() noexcept {}
@@ -75,7 +78,7 @@ namespace TreadleTest
 
 		bool GetFlag() const noexcept { return bDependencyCompleteFlag; }
 
-		Task<void> WaitAndSet(Task<void> &wait)
+		Task<void> WaitAndSet(Task<void>& wait)
 		{
 			co_await wait;
 
@@ -84,5 +87,17 @@ namespace TreadleTest
 
 	private:
 		bool bDependencyCompleteFlag = false;
+	};
+
+	class TrackedScheduler {
+	public:
+		TrackedScheduler(){
+			Treadle::IScheduler::Get().SetScheduleFn([this](Job&& job){
+				this->scheduledJobs.push(job);
+			});
+		}
+
+	private:
+		std::queue<Treadle::Job> scheduledJobs;
 	};
 }

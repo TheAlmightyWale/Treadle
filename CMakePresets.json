@@ -11,8 +11,8 @@
             "hidden": true,
             "inherits": "common-base",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "installDir": "${sourceDir}/out/install/${presetName}",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe"
@@ -52,7 +52,7 @@
             "inherits": "common-base",
             "description": "Uses the Ninja generator with Clang compilers for a debug build.",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/clang-debug",
+            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang.exe",
                 "CMAKE_CXX_COMPILER": "clang++.exe",

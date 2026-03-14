@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "TestUtils.hpp"
 
-#include <Wait.hpp>
+#include <Treadle/public/Wait.hpp>
 
 namespace TreadleTest
 {

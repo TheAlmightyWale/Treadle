@@ -6,38 +6,10 @@
 #include <utility>
 #include "MpmcQueue.hpp"
 #include "TaskTraits.hpp"
+#include "Job.h"
 
 namespace Treadle
 {
-	// Type Erased version of Task
-	// JobSystem should not care about return values of Task, just about kicking it off
-	class Job
-	{
-	public:
-		template <IsTask T>
-		Job(T const& task) noexcept
-			: coro_(task.GetCoroutine())
-		{}
-
-		Job& operator=(Job const&) = delete;
-		Job(Job const&) = delete;
-
-		Job& operator=(Job&& other) noexcept
-		{
-			std::swap(coro_, other.coro_);
-			return *this;
-		}
-
-		Job(Job const&& other) noexcept
-		: coro_(other.coro_)
-		{}
-
-		void Start() { coro_.resume(); }
-
-	//private:
-		std::coroutine_handle<> coro_;
-	};
-
 	class JobSystem
 	{
 	public:
@@ -48,7 +20,7 @@ namespace Treadle
 		void Start() noexcept;
 		void JoinAll() noexcept;
 
-		void AddJob(Job &&job) noexcept;
+		void AddJob(Job const& job) noexcept;
 
 		MpmcQueue<Job> const& GetQueue();
 

@@ -3,7 +3,7 @@
 #
 cmake_minimum_required (VERSION 3.25)
 
-option(TREADLE_BUILD_RUN_TESTS "Build and run Treadle tests" FALSE)
+option(TREADLE_BUILD_RUN_TESTS "Build and run Treadle tests" TRUE)
 option(TREADLE_BUILD_RUN_BENCHMARKS "Build and run Treadle benchmarks" FALSE)
 
 function(fetch_gtest)

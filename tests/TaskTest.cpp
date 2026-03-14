@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "TestUtils.hpp"
-#include <Task.hpp>
+#include <Treadle/public/Task.hpp>
 
 #include <vector>
 
@@ -41,43 +41,50 @@ namespace TreadleTest
 		EXPECT_EQ(task.Value(), 1);
 	}
 
-	Task<void> WaitOnEvent(TestEvent &event) noexcept
+	Task<void> WaitOnEvent(TestEvent& event) noexcept
 	{
 		co_await event;
 	}
 
 	TEST(TaskTests, doesNotCallContinuationWhenNotDependant)
 	{
+		//Needed to reroute default scheduling function
+		TrackedScheduler ts;
 		// set up continuation that sets a value to true after awaiting another task
 		FlagSetter setter;
 		TestEvent event;
 		auto dependedTask = WaitOnEvent(event);
 		auto task = setter.WaitAndSet(dependedTask);
+
+		 //Kick off task and wait.
+		dependedTask.Resume();
 		task.Resume();
 		EXPECT_FALSE(setter.GetFlag());
 
+		//remove dependency
+		dependedTask.SetCounter(nullptr);
+
 		// depended Task should finish and then return to this function, so task never sets it's flag
 		dependedTask.Resume();
-
-		// assert that variable was set to true
 		EXPECT_FALSE(setter.GetFlag());
 	}
 
 	TEST(TaskTests, callsContinuationWhenDependant)
 	{
+		TrackedScheduler ts;
 		// set up continuation that sets a value to true after awaiting another task
 		FlagSetter setter;
 		TestEvent event;
 		auto dependedTask = WaitOnEvent(event);
 		auto task = setter.WaitAndSet(dependedTask);
-		task.InitializeCounter(1);
-		dependedTask.SetCounter(task.GetCounter());
+
+		//Kick off task and wait.
+		dependedTask.Resume();
 		task.Resume();
 		EXPECT_FALSE(setter.GetFlag());
 
 		// depended Task should finish and then immediately continue task and set it's flag
 		dependedTask.Resume();
-		// assert that variable was set to true
 		EXPECT_TRUE(setter.GetFlag());
 	}
 

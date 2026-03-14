@@ -11,10 +11,10 @@ namespace Treadle
     class MpmcQueue
     {
     public:
-        void push(T&& value)
+        void push(T const& value)
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            queue_.push(std::move(value));
+            queue_.push(value);
         }
 
         std::optional<T> try_pop()

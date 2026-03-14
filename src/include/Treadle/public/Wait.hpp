@@ -1,7 +1,7 @@
 #pragma once
 #include "TaskTraits.hpp"
 #include "Task.hpp"
-#include "include/Treadle/private/WaitUtils.h"
+#include "WaitUtils.h"
 
 namespace Treadle
 {
@@ -29,7 +29,7 @@ namespace Treadle
 
 		// for each task, set counter and continuation
 		(tasks.SetContinuation(t.GetCoroutine()), ...);
-		(tasks.SetCounter(t.GetCounter()), ...);
+		(tasks.SetCounter(&t.GetCounter()), ...);
 
 		return t;
 	}
